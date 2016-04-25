@@ -1,0 +1,917 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@include file="../../common/meta.jsp" %>
+<link type="text/css" rel="stylesheet" href="${root}/public/css/reset.css" />
+<link type="text/css" rel="stylesheet" href="${root}/public/css/4.1/player_cute.css" />
+<script type="text/javascript" src="${root}/public/js/topic.js"></script>
+<script type="text/javascript">
+    function randomDate(){
+        return $(".timer_all").html()
+    }
+</script>
+<style>
+body{padding:20px;}
+ol li{list-style:decimal}
+pre{background:#ccc;}
+.rollList {height: 115px;width: 3000px;float: left;}
+.rollBox {overflow: hidden;margin-top:10px;width: 475px;}
+.relatedResBox{width:125px;height: 50px;float: left;position: relative;}
+.relatedResBox .prevBtn, .relatedResBox .nextBtn {color: #6b90da;font-family: sans-serif;font-size: 70px;width: 20px;position: absolute;height: 192px;width: 34px;background-image: url(../../public/img//photo_btn_bg.png);line-height: 192px;top: 0px;left: 0px;}
+.relatedResBox .nextBtn{right: 0px;left: inherit;}
+.rollList li {border: 1px solid #ecf0ee;float: left;width: 157px}
+.rollList li img {height:192px;width: 137px;}
+#class_Vide
+o_List .res_rolllist li img{width: 140px;height: 78px;margin-right: 18px;}
+#class_Video_List .res_rolllist li{width: 140px;height: 78px;margin-right: 18px;margin-left: 0px;float: left;}
+</style>
+<body>
+<div style="display:none" id="hiddenDiv">
+	<c:forEach items="${attrs }" var="map">
+		<input type="hidden" name="${map.key }" value="${map.value }"/>
+	</c:forEach>
+</div>
+<div class="container w1200 marginauto">
+    <div class="conboder">
+    	
+        <div class="frame_left">
+        	<span class="cute_Playname">XX视频切片画面</span>
+            <div class="flash_one"></div>
+            <div class="mejs-controls">
+                <!-- 播放 -->
+                <div class="mejs-button mejs-playpause-button" id="vsPause">
+                    <button title="Play/Pause" aria-controls="paues" type="button"></button>
+                </div>
+                <span class="stopfile" onclick="playerinit()"></span>
+                <!-- 播放时间 -->
+                <div class="mejs-timer">
+                    <span class="timer_play">00:00:00</span>/ <span class="timer_all" id="timer_all">00:00:00</span>
+                </div>
+                <!-- 视频位置控制 -->
+                <div class="mejs-time-rail">
+              <span class="mejs-time-total">
+                <span class="mejs-time-loaded"></span>
+                <span class="mejs-time-current"></span>
+                <span class="mejs-time-onProgress"></span>
+                <span class="mejs-time-handle"></span>
+              </span>
+                </div>
+                <!-- 音量控制 -->
+                <div class="mejs-button mejs-volume-button" id="vsvideo">
+                    <button title="Mute Toggle" type="button"></button>
+                </div>
+                <div class="mejs-horizontal-volume-slider">
+                    <div class="mejs-horizontal-volume-total"></div>
+                    <div class="mejs-horizontal-volume-current"></div>
+                    <div class="mejs-horizontal-volume-handle"></div>
+                </div>
+            </div>
+			<input type='hidden' id='playResSliceVideoId' />
+            <div class="left_putIn">
+                <p>教学反思<a class="save_Btn" onclick="saveRethink()" href="javascript:void(0);">保存</a></p>
+                <textarea id='rethink'>
+                    
+                </textarea>
+            </div>
+            <div class="left_putIn">
+                <p>说明<a class="save_Btn" onclick="saveDescription()" href="javascript:void(0);">保存</a></p>
+                <textarea id='description'>
+                    
+                </textarea>
+            </div>
+        </div>
+        <div id="quiz-container"></div>
+        <script type="text/javascript">
+        var init={'questions':[{'question':'jQuery是什么？','answers':['JavaScript库','CSS库','PHP框架','以上都不是'],'correctAnswer':1},{'question':'找出不同类的一项?','answers':['写字台','沙发','电视','桌布'],'correctAnswer':1},{'question':'国土面积最大的国家是：','answers':['美国','中国','俄罗斯','加拿大'],'correctAnswer':3},{'question':'月亮距离地球多远？','answers':['18万公里','38万公里','100万公里','180万公里'],'correctAnswer':2}]};
+        var init2={'questions':[{'question':'jQuery是什么？','answers':['JavaScript库','CSS库','PHP框架','以上都不是'],'correctAnswer':1},{'question':'找出不同类的一项?','answers':['写字台','沙发','电视','桌布'],'correctAnswer':1},{'question':'国土面积最大的国家是：','answers':['美国','中国','俄罗斯','加拿大'],'correctAnswer':3},{'question':'月亮距离地球多远？','answers':['18万公里','38万公里','100万公里','180万公里'],'correctAnswer':2}]};
+       	$('#quiz-container').jquizzy({
+               questions: init.questions
+           });
+        </script>
+        <div class="cute_right">
+    		<div class="cute_tabs">
+            	<span class="selected" onclick="model.tabtoggle(0)">视频切片</span>
+          		<span onclick="model.tabtoggle(1)">看点标注</span>
+          		<span onclick="model.tabtoggle(2)">测验</span>
+          	</div>
+            <div class="frame_right2 ms-tabs" style="display:block" id="tabs1">
+                <p>
+                    <label>开始时间:</label>
+                    <input type="text" data-duplex-event="blur" value="00:00:00" onclick="var date=randomDate();WdatePicker({dateFmt:'HH:mm:ss',minDate:'00:00:00',maxDate:date});" name="stime" id="stime" class="Wdate">
+                    <span onclick="model.getPlayTime()" class="btn btnOrange btn_org">当前时间</span>
+                </p> 
+                <p>   
+                    <label>结束时间:</label>
+                    <input type="text" data-duplex-event="blur" value="00:00:00" onclick="var date=randomDate();WdatePicker({dateFmt:'HH:mm:ss',minDate:'00:00:00',maxDate:date});" name="etime" id="etime" class="Wdate">
+                    <span onclick="model.getEndTime()" class="btn btnOrange btn_org">当前时间</span>
+                </p> 
+                <p> 
+                    <label>切片名称:</label>
+                    <input type="text" class="cuteName">
+                </p>
+                <p>
+                    <label><input type="checkbox" id="cuteVirtual">虚拟切片</label>
+                    <span class="addCuteBtn btn btnOrange btn_org" onclick="model.addCuteBtn()" style="margin-left: 74px;">生成切片</span>
+                </p>
+                <ul class="frame_ul1" style="margin-top:15px;">
+                    <li class="fb">原始视频名称</li>
+                    <li class="fb">操作</li>
+                </ul>
+                <ul class="frame_ul1">
+                    <li>XX教学视频</li>
+                    <li><span class="play_cute" onclick="playVideo()" style="margin-left:0px"></span></li>
+                </ul>
+                <div class="cutelist">
+                    <ul class="frame_ul1">
+                        <li class="fb">切片名称</li>
+                        <li class="fb">操作</li>
+                    </ul>
+                    <ul class="frame_ul1">
+                        <li style="width:137px;">XXX视频切片</li>
+                        <li style="width:57px;"><label class="red">生成失败</label></li>
+                        <li style="width:135px;"><span class="play_cute"></span><span class="play_dow"></span><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                    <ul class="frame_ul1">
+                        <li style="width:137px;">XXX视频切片</li>
+                        <li style="width:57px;"><label class="red">生成失败</label></li>
+                        <li style="width:135px;"><span class="play_cute"></span><span class="play_dow"></span><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                    <ul class="frame_ul1">
+                        <li style="width:137px;">XXX视频切片</li>
+                        <li style="width:57px;"><label class="red">生成失败</label></li>
+                        <li style="width:135px;"><span class="play_cute"></span><span class="play_dow"></span><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                    <ul class="frame_ul1">
+                        <li style="width:137px;">XXX视频切片</li>
+                        <li style="width:57px;"><label class="green">生成中</label></li>
+                        <li style="width:135px;"><span class="play_cute"></span><span class="play_dow"></span><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                </div>
+                <script type="text/tmpl" id="addCuteinfo">
+                    <ul class="frame_ul1" id="addCuteul">
+                        <li class="cute_name" style="width:137px;"></li>
+						<li style="width:57px;"><label class="green">生成中</label></li>
+                        <li style="width:135px;"><span class="play_cute"></span><span class="play_dow"></span><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                </script>
+            </div>
+            <div class="frame_right2 ms-tabs">
+                <p>
+                    <label style="text-indent:13px;display: inline-block;">打点时间:</label>
+                    <input type="text" data-duplex-event="blur" onclick="var date=randomDate();WdatePicker({dateFmt:'HH:mm:ss',minDate:'00:00:00',maxDate:date});" name="ptime" id="ptime" class="Wdate">
+                    <span onclick="model.getPTime()" class="btn btnOrange btn_org">当前时间</span>
+                </p> 
+                <p>
+                    <label>视频缩略图:</label>
+                    <label><input type="checkbox" id="pointView">启用</label>
+                </p>
+                <p>
+                    <label style="display: inline-block;text-indent: 13px;">打点名称:</label>
+                    <input type="text" class="pointName">
+                </p>
+                <p>
+                    <span onclick="model.addPoint()" class="btn btnOrange btn_org" style="width:110px;margin-left: 85px;">生成看点标注</span>
+                </p>
+                <div class="watch_point">
+                    <ul class="frame_ul1 frame_watch" style="margin-top:20px;">
+                        <li class="fb">打点名称</li>
+                        <li class="fb">打点时间</li>
+                        <li class="fb">操作</li>
+                    </ul>
+                    <ul class="frame_ul1 frame_watch">
+                        <li>讲解知识点1</li>
+                        <li>hh:mm:ss</li>
+                        <li><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                    <ul class="frame_ul1 frame_watch">
+                        <li>讲解知识点1</li>
+                        <li>hh:mm:ss</li>
+                        <li><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                    <ul class="frame_ul1 frame_watch">
+                        <li>讲解知识点1</li>
+                        <li>hh:mm:ss</li>
+                        <li><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                    <ul class="frame_ul1 frame_watch">
+                        <li>讲解知识点1</li>
+                        <li>hh:mm:ss</li>
+                        <li><span class="play_del" onclick="model.delList(event)"></span></li>
+                    </ul>
+                </div>
+                <script type="text/tmpl" id="addPoint">
+                   <ul class="frame_ul1 frame_watch">
+                     <li class="point">讲解知识点1</li>
+                     <li>hh:mm:ss</li>
+                     <li><span class="play_del" onclick="model.delList(event)"></span></li>
+                  </ul>
+               </script>
+            </div>
+            <div class="frame_right3 ms-tabs" style="${hideTest?'none':''}">
+                <p>
+                    <label style="text-indent:13px;display: inline-block;">测验时间:</label>
+                    <input type="text" data-duplex-event="blur" onclick="var date=randomDate();WdatePicker({dateFmt:'HH:mm:ss',minDate:'00:00:00',maxDate:date});" name="ttime" id="ttime" class="Wdate">
+                    <span onclick="model.gettopics()" class="btn btnOrange btn_org">当前时间</span>
+                </p> 
+                <p>
+                    <label style="display: inline-block;text-indent: 13px;">测验名称:</label>
+                    <input type="text" class="topicName">
+                </p>
+                <div class="topics">
+	                <div class="test_topic" id="topic1">
+	                	<p>
+		                    <label style="display: inline-block;text-indent: 13px;">题目1:</label>
+		                    <input type="text">
+		                </p>
+		                <p>
+		                    <label style="display: inline-block;text-indent: 13px;">选项A:</label>
+		                    <input type="text">
+		                </p>
+		                <p>
+		                    <label style="display: inline-block;text-indent: 13px;">选项B:</label>
+		                    <input type="text">
+		                </p>
+		                <p>
+		                    <label style="display: inline-block;text-indent: 13px;">选项C:</label>
+		                    <input type="text">
+		                </p>
+		                <p>
+		                    <label style="display: inline-block;text-indent: 13px;">选项D:</label>
+		                    <input type="text">
+		                </p>
+		                <p>
+		                    <label style="display: inline-block;">正确答案:</label>
+		                    <label>
+		                    	<input type="radio" name="topic1">A	
+		                    </label>
+		                    <label>
+		                    	<input type="radio" name="topic1">B	
+		                    </label>
+		                    <label>
+		                    	<input type="radio" name="topic1">C	
+		                    </label>
+		                    <label>
+		                    	<input type="radio" name="topic1">D	
+		                    </label>
+		                </p>
+		            </div>
+		        </div>
+	                <p>
+	                	<span class="add_Topic" onclick="model.addTopic()">添加题目</span>
+	                </p>
+	                <p>
+	                	<span onclick="model.getPTime()" class="btn btnOrange btn_org">生成测试</span>
+	                </p>
+	                <script type="text/tmpl" id="addTopic">
+                    	<div class="test_topic" id="topic1">
+                	<p>
+	                    <label style="display: inline-block;text-indent: 13px;">题目1:</label>
+	                    <input type="text">
+	                </p>
+	                <p>
+	                    <label style="display: inline-block;text-indent: 13px;">选项A:</label>
+	                    <input type="text">
+	                </p>
+	                <p>
+	                    <label style="display: inline-block;text-indent: 13px;">选项B:</label>
+	                    <input type="text">
+	                </p>
+	                <p>
+	                    <label style="display: inline-block;text-indent: 13px;">选项C:</label>
+	                    <input type="text">
+	                </p>
+	                <p>
+	                    <label style="display: inline-block;text-indent: 13px;">选项D:</label>
+	                    <input type="text">
+	                </p>
+	                <p>
+	                    <label style="display: inline-block;">正确答案:</label>
+	                    <label>
+	                    	<input type="radio" name="topic1">A	
+	                    </label>
+	                    <label>
+	                    	<input type="radio" name="topic1">B	
+	                    </label>
+	                    <label>
+	                    	<input type="radio" name="topic1">C	
+	                    </label>
+	                    <label>
+	                    	<input type="radio" name="topic1">D	
+	                    </label>
+	                </p>
+	            </div>
+              		</script>
+	                <div class="topic_List">
+	                    <ul class="frame_ul1 frame_watch" style="margin-top:20px;">
+	                        <li class="fb">打点名称</li>
+	                        <li class="fb">打点时间</li>
+	                        <li class="fb">操作</li>
+	                    </ul>
+	                    <ul class="frame_ul1 frame_watch">
+	                        <li>讲解知识点1</li>
+	                        <li>hh:mm:ss</li>
+	                        <li><span class="play_del" onclick="model.delList(event)"></span></li>
+	                    </ul>
+	                    <ul class="frame_ul1 frame_watch">
+	                        <li>讲解知识点1</li>
+	                        <li>hh:mm:ss</li>
+	                        <li><span class="play_del" onclick="model.delList(event)"></span></li>
+	                    </ul>
+	                    <ul class="frame_ul1 frame_watch">
+	                        <li>讲解知识点1</li>
+	                        <li>hh:mm:ss</li>
+	                        <li><span class="play_del" onclick="model.delList(event)"></span></li>
+	                    </ul>
+	                    <ul class="frame_ul1 frame_watch">
+	                        <li>讲解知识点1</li>
+	                        <li>hh:mm:ss</li>
+	                        <li><span class="play_del" onclick="model.delList(event)"></span></li>
+	                    </ul>
+	                </div>
+	                <script type="text/tmpl" id="addTopic_list">
+                    	<ul class="frame_ul1 frame_watch">
+                      		<li class="point">讲解知识点1</li>
+                     		<li>hh:mm:ss</li>
+                      		<li><span class="play_del" onclick="model.delList(event)"></span></li>
+                    	</ul>
+              		</script>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="${root }/public/js/extend.js"></script>
+<script src="${root }/public/js/litewin.js" type="text/javascript"></script>
+<script src="${root }/public/calendar/WdatePicker.js" type="text/javascript"></script>
+<script src="${root }/public/player/videoplayer.js"></script>
+
+<script type="text/javascript">
+
+var RIGHT_FLASH_TAB = {};
+var state = "paues";
+var currentnum = 1;
+var time = '';
+right_One_param = {
+    skin: "${root}/public/player/MinimaFlatCustomColorAll.swf",
+    volume: "0",
+    url:"${root}${attrs.path}",
+    hidemenu : true
+};
+RIGHT_FLASH_TAB["video0"] = new FlvPlayer($class("flash_one")[0], "RIGHT_FLASH_TAB.video0", "${root}/public/player/videoPlayer.swf", right_One_param);
+RIGHT_FLASH_TAB["video0"].playerEvent.add("onPlaying", function() {
+    time = arguments[0].message;
+    if (time > RIGHT_FLASH_TAB["video0"].totalTime) {
+        $(".mejs-time-handle").css("left","99%");
+        control_Player("pauseFile");
+    };
+    PLAY_TIME = time / RIGHT_FLASH_TAB["video0"].totalTime * 100;
+    $class("mejs-time-handle")[0].style.left = Math.max(PLAY_TIME - 1, 1) + "%";
+    $class("mejs-time-current")[0].style.width = Math.max(PLAY_TIME - 1, 1) + "%";
+    $(".timer_play").html(morephoto.arrive_timer_format(Math.floor(time)));
+    if (time > RIGHT_FLASH_TAB["video0"].totalTime) {
+        $(".mejs-time-handle").css("left","99%");
+        $(".mejs-time-current").css("width","99%");
+    };
+});
+
+RIGHT_FLASH_TAB["video0"].playerEvent.add("onMetadataReceived", function() {
+	
+    window.altotalTime = Math.floor(RIGHT_FLASH_TAB["video0"].totalTime);
+    $(".timer_all").html(morephoto.arrive_timer_format(altotalTime));
+    $(".timer_all").attr("data-time", altotalTime);
+	loadPointList();
+});
+RIGHT_FLASH_TAB["video0"].playerEvent.add("onProgress",function(){
+    var prec = arguments[0].message;
+    $class("mejs-time-onProgress")[0].style.width = Math.min(prec*100, 100) + "%";
+});
+//拖动事件
+function changeRange(o, e, v, callback) {
+    var w = o.parentNode.offsetWidth;
+    if (!window.event) {
+        e.preventDefault();
+    }
+    var tX = o.offsetLeft,
+        dx = e.clientX,
+        rat = null;
+    events.addEvent(document, 'mousemove', mouseMove);
+    events.addEvent(document, 'mouseup', mouseUp);
+
+    function mouseMove() {
+        var e = arguments[0] || window.event;
+        var len = tX + e.clientX - dx + o.offsetWidth / 2;
+        if (len >= 0 && len <= w - o.offsetWidth) {
+            rat = len / w;
+            o.style.left = rat * 100 + "%";
+            v.style.width = rat * 100 + "%";
+        }
+        if (window.event) e.returnValue = false;
+    }
+
+    function mouseUp() {
+        if (rat !== null) callback(rat);
+        events.removeEvent(document, 'mousemove', mouseMove);
+        events.removeEvent(document, 'mouseup', mouseUp);
+    }
+}
+
+function playVideo(){
+    RIGHT_FLASH_TAB["video0"].totalTime = window.altotalTime;
+    $(".timer_all").html(morephoto.arrive_timer_format(altotalTime));
+    playerinit();
+    control_Player("playFile");
+    play_State()
+}
+window.model ={
+        stime:'',
+        etime:'',
+        ptime:'',
+        cuteName:'',
+        pointName:'',
+        tabtoggle : function(path_num){
+        	window.path_num = path_num;
+        	$(".cute_tabs span").eq(path_num).addClass("selected").siblings().removeClass();
+        	$('.cute_right .ms-tabs').hide();
+			$('.cute_right .ms-tabs').eq(path_num).show(); 
+			$(".play_Point").hide();
+			if (path_num == 1) {
+				RIGHT_FLASH_TAB["video0"].totalTime = window.altotalTime;
+    			$(".timer_all").html(morephoto.arrive_timer_format(altotalTime));
+    			playerinit();
+    			$(".play_Point").show();
+    			$(".play_Point").mouseover(function(){
+    	        	$(this).find(".pointfont").show()
+    	          });
+    	          $(".play_Point").mouseout(function(){
+    	        	  $(this).find(".pointfont").hide()
+    	        });
+			};
+			$(".left_putIn").hide();
+        },
+        getPlayTime :function(){
+            stime = $(".timer_play").html()
+            $("#stime").val(stime);
+        },
+        getEndTime :function(){
+            etime = $(".timer_play").html()
+            $("#etime").val(etime);
+        },
+        getPTime :function(){
+            ptime = $(".timer_play").html()
+            $("#ptime").val(ptime);
+        },
+        gettopics :function(){
+            ptime = $(".timer_play").html()
+            $("#ttime").val(ptime);
+        },
+        addCuteBtn : function(){
+        	if($("#stime").val() == "" || $("#etime").val() == "" || $(".cutelist ul").length >10){
+        		return false
+        	}
+            $(".cutelist").append($("#addCuteinfo").html());
+            cuteName =$(".cuteName").val();
+            $(".cutelist ul:last li:eq(0)").html(cuteName);
+            if ( $("#stime").val() > $("#etime").val() ) {
+                var s = $("#stime").val();
+                var e = $("#etime").val();
+                $("#etime").val(s);
+                $("#stime").val(e);
+            };
+            if (cuteVirtual.checked==true) {
+            	var cutePlayButton = $(".cutelist ul:last li:eq(2) span");
+            	cutePlayButton.eq(1).remove();
+                //cutePlayButton.eq(0).attr("class","playerVirtual play_cute");
+                cutePlayButton.eq(0).attr("stime",$("#stime").val());
+                cutePlayButton.eq(0).attr("etime",$("#etime").val());
+                /*var ss = $("#stime").val().split(":");
+                    ss = parseInt(ss[0])*3600 + parseInt(ss[1])*60 + parseInt(ss[2]);
+                    var ee = $("#etime").val().split(":");
+                    ee = parseInt(ee[0])*3600 + parseInt(ee[1])*60 + parseInt(ee[2]);*/
+                $(".playerVirtual").click(function(){
+                    /*$(".timer_play").html($(this).attr("stime"))
+                    $(".timer_all").html($(this).attr("etime"))
+                    RIGHT_FLASH_TAB.video0.totalTime = ee;
+                    control_Player("seek",ss);*/
+                    
+                    /*play_State();*/
+                })
+            };
+			window.addSlice(cuteName,$("#stime").val(),$("#etime").val(),cuteVirtual.checked);
+        },
+        addPoint : function(){
+        	if($("#ptime").val() == ""){
+        		Win.alert('请输入打点时间');
+				return false;
+        	}
+			if($(".watch_point ul").length >10){
+				Win.alert('单个视频最多切10个切片');
+				return false;
+			}
+            pointName =$(".pointName").val();
+            pointTime =$("#ptime").val();
+			if(pointName == ''){
+				Win.alert('请输入打点名称');
+				return false;
+			}
+			if(getByteLen(pointName) > 20){
+				Win.alert('很抱歉，打点名称最大长度为10个字');
+				return false;
+			}
+            var pointID = Math.random()*100;
+           // $(".watch_point").append($("#addPoint").html());
+            /*var watch_pointLi = $(".watch_point ul:last li");
+            watch_pointLi.eq(0).html(pointName);
+            watch_pointLi.eq(1).html(pointTime);*/
+            //watch_pointLi.find("span").attr("ms-id",pointID);
+            var pp = $("#ptime").val().split(":");
+            try{
+				pp = parseInt(pp[0])*3600 + parseInt(pp[1])*60 + parseInt(pp[2]);
+			}catch(e){
+				Win.alert('请输入正确的打点时间格式hh:MM:ddd');
+				return false;
+			}
+            var left_val = Math.min(pp / RIGHT_FLASH_TAB["video0"].totalTime,0.99)*100+ "%";
+			if(pp / RIGHT_FLASH_TAB["video0"].totalTime > 1){
+				Win.alert('打点时间不能超过视频时间');
+				return false;
+			}
+			/*var pointHtml = '';
+			pointHtml += "<span class='point_left play_Point' id="+ pointID +" style=left:"+ left_val +">";
+			pointHtml +="<p class='pointfont'>";
+			pointHtml +="<b>"+ pointTime +" </b>";
+			pointHtml +="<label>"+ pointName +" </label>";
+			if(pointView.checked==true){
+				pointHtml +="<img src=''>";	
+			}
+			pointHtml +="</p></span>";
+            $(".mejs-time-total").append(pointHtml);*/
+            $(".play_Point").show();
+            $(".play_Point").mouseover(function(){
+            	$(this).find(".pointfont").show()
+              });
+            $(".play_Point").mouseout(function(){
+            	  $(this).find(".pointfont").hide()
+            });
+			
+			window.addPoint(pointName,pointTime,pointView.checked);
+        },
+        addTopic : function(){
+            $(".topics").append($("#addTopic").html());
+            var topicnum = $(".topics").find("div").length;
+            currentnum++;
+            $(".topics").find("div").eq(topicnum-1).attr("id","topic"+currentnum);
+            
+        },
+        delList : function(event){
+            event = event ? event : window.event;
+            var obj = event.srcElement ? event.srcElement : event.target;
+            //这时obj就是触发事件的对象，可以使用它的各个属性
+            //还可以将obj转换成jquery对象，方便选用其他元素
+            var $obj = $(obj);
+           
+            var this_point = $obj.attr("ms-id");
+			var sliceId = $obj.attr('sliceId');
+			if(sliceId){
+				Win.confirm({id:"del_sliceId",html:"您确定删除"+$obj.attr('sliceName')+"?"},function(){
+					delSlice(sliceId,$obj.attr('sliceName'));
+					//$obj.parent().parent('.frame_ul1').hide();
+				});
+			}
+			var pointId = $obj.attr('pointId');
+			if(pointId){
+				Win.confirm({id:"del_Point",html:"您确定删除"+$obj.attr('pointName')+"?"},function(){
+					delPoint(pointId,$obj.attr('pointName'));
+					//document.getElementById(this_point).style.visibility="hidden";
+					//$obj.parent().parent('.frame_ul1').hide();
+				});
+			}
+        },
+        point_seek:function(punchTime){
+        	control_Player("playFile");
+        	control_Player("seek",punchTime);
+        }
+    }
+
+var morephoto = {
+    //秒转换时分秒
+    arrive_timer_format: function(s) {
+        var h=0,i=0;
+        if(s>60){
+            i=parseInt(s/60);
+            s=parseInt(s%60);
+            if(i > 60) {
+                h=parseInt(i/60);
+                i = parseInt(i%60);
+            }
+        }
+        // 补零
+        var zero=function(v){
+            return (v>>0)<10?"0"+v:v;
+        };
+        return [zero(h),zero(i),zero(s)].join(":");
+    }
+}
+
+
+
+
+function pageHide(content){
+    $(content).attr("style", "visibility:hidden");
+}
+function pageShow(content){
+    $(content).attr("style", "visibility:visible");
+}
+//视频控制方法
+function control_Player(ways, num) {
+
+   RIGHT_FLASH_TAB.video0[ways](num);
+
+};
+//播放控制
+var vsButton = $(".mejs-playpause-button");
+vsButton.click(function() {
+
+    if (!vsButton.hasClass('mejs-pause')) {
+        //播放
+        vsButton.addClass('mejs-pause');
+        control_Player("playFile");
+
+    } else {
+        vsButton.removeClass('mejs-pause');
+        control_Player("pauseFile");
+    }
+});
+
+//播放状态控制
+function play_State() {
+    var button_State = vsButton.attr("aria-controls");
+    if (state == button_State) {
+        state = "paues";
+        vsButton.removeClass('mejs-pause');
+        control_Player("pauseFile");
+    } else {
+        state = "play";
+        vsButton.addClass('mejs-pause');
+        control_Player("playFile");
+    }
+};
+//音量
+events.addEvent($class("mejs-horizontal-volume-handle")[0], 'mousedown', function() {
+    var e = arguments[0] || window.event,
+        target = e.srcElement || e.target;
+    changeRange(target, e, $class("mejs-horizontal-volume-current")[0], function(rat) {
+        var _t = rat * 1.3;
+        control_Player("setVolume", _t);
+        if (_t <= 0.1) {
+            $('#vsvideo').addClass("volume-empty");
+        } else {
+            $('#vsvideo').removeClass("volume-empty");
+        };
+
+    })
+});
+
+//静音处理
+$('#vsvideo').on('click', function() {
+        control_Player("setVolume", 0);
+        $(this).addClass("volume-empty");
+        $(".mejs-horizontal-volume-handle").css("left", "1.35%");
+        $(".mejs-horizontal-volume-current").css("width", "1.35%");
+    })
+    //视频控制
+events.addEvent($class("mejs-time-handle")[0], 'mousedown', function() {
+    var e = arguments[0] || window.event,
+        target = e.srcElement || e.target;
+    changeRange(target, e, $class("mejs-time-current")[0], function(rat) {
+        var _t = rat * RIGHT_FLASH_TAB.video0.totalTime;
+        $(".timer_play").html(morephoto.arrive_timer_format(Math.floor(_t)));
+        control_Player("seek", _t);
+        control_Player("playFile");
+        play_State();
+    })
+});
+function playerinit() {
+    
+    $(".mejs-time-current").css("width","0.5%");
+    $(".mejs-time-handle").css("left","0.5%");
+    $(".timer_play").html("00:00:00");
+    vsButton.removeClass('mejs-pause');
+    control_Player("stopFile");
+};
+
+
+//======================================================================================================================
+	
+function addSlice(cuteName, startTime, endTime, virtualFlag){
+	var param = getParam();
+	param.sliceName = cuteName;
+	param.sliceStartTime = timeStrToInt(startTime);
+	param.sliceEndTime = timeStrToInt(endTime);
+	param.virtualSliceFlag = virtualFlag ? 'Y' : 'N';
+	postAction('${root}/slice/addSlice.do',param, function(data){
+		if(data.result){
+			loadSliceList();
+		}else{
+			Win.alert(data.message);
+		}
+	});
+}
+
+function delSlice(sliceId, sliceName){
+	var param = {
+		sliceId:sliceId
+	};
+	postAction('${root}/slice/delSlice.do',param, function(data){
+		loadSliceList();
+	});
+}
+
+function loadSliceList(){
+	postAction('${root}/slice/getSliceListByVideoId.do',{id:'${attrs.originalVideoId}'},function(data){
+		var html = '';
+		for(var i=0;i<data.length;i++){
+			var bean = data[i];
+			html += '<ul class="frame_ul1">';
+			if(bean.status == 'SUCCESS' ){
+				html += '<li style="width:137px;">'+bean.sliceName+'</li>';
+				html += '<li style="width:57px;"></li>';
+				var actionHtml = '';
+				actionHtml += '<span class="play_cute play_cute_Video" data-id="'+bean.resVideoSliceId+'"></span>';
+				if(bean.virtualSliceFlag == 'N'){
+					actionHtml += '<span class="play_dow"></span>';
+				}
+				actionHtml += '<span class="play_del" onclick="model.delList(event)" sliceId="'+bean.resVideoSliceId+'" sliceName="'+bean.sliceName+'"></span>';
+				html += '<li style="width:135px;">'+actionHtml+'</li>';
+			}
+			if(bean.status == 'PROGRESS' ){
+				html += '<li style="width:137px;">'+bean.sliceName+'</li>';
+				html += '<li style="width:57px;"><label class="green">生成中</label></li>';
+				html += '<li style="width:135px;"></li>';
+			}
+			if(bean.status == 'FAILED' ){
+				html += '<li style="width:137px;">'+bean.sliceName+'</li>';
+				html += ' <li style="width:57px;"><label class="red">生成失败</label></li>';
+				actionHtml += '<span class="play_del" onclick="model.delList(event)" sliceId="'+bean.resVideoSliceId+'" sliceName="'+bean.sliceName+'"></span>';
+				html += '<li style="width:135px;">'+actionHtml+'</li>';
+			}
+			
+			html += '</ul>';
+		}
+		$('.cutelist ul:gt(0)').remove();
+		$('.cutelist').append(html);
+		$(".play_cute_Video").click(function(){
+			control_Player("playFile");
+            $(".left_putIn").show();
+			var resSliceVideoId = $(this).attr('data-id');
+			$('#playResSliceVideoId').val(resSliceVideoId);
+			$.post("${root}/slice/getSliceVideoInfo.do",{id:resSliceVideoId},function(data){
+				$('#rethink').val(data.rethink);
+				$('#description').val(data.description);
+			});
+        })
+	});
+}
+
+function saveRethink(){
+	var text = $('#rethink').val();
+	if(getByteLen(text) == 0){
+		Win.alert('请输入教学反思');
+		return;
+	}
+	if(getByteLen(text)>200){
+		Win.alert('很抱歉，教学反思最大长度为100个字');
+		return;
+	}
+	$.post("${root}/slice/saveRethink.do",{id:$('#playResSliceVideoId').val(), rethink:text},function(){
+	});
+}
+
+function saveDescription(){
+	var text = $('#description').val();
+	if(getByteLen(text) == 0){
+		Win.alert('请输入说明');
+		return;
+	}
+	if(getByteLen(text)>200){
+		Win.alert('很抱歉，说明最大长度为100个字');
+		return;
+	}
+	$.post("${root}/slice/saveDescription.do",{id:$('#playResSliceVideoId').val(), description:text},function(){
+	});
+}
+
+
+
+function addPoint(pointName, pointTime, useThumbFlag){
+	var param = getParam();
+	param.pointName = pointName;
+	param.punchTime = timeStrToInt(pointTime);
+	param.useThumbFlag = useThumbFlag ? 'Y' : 'N';
+	postAction('${root}/slice/addPoint.do',param, function(data){
+		if(data.result){
+			loadPointList();
+		}else{
+			Win.alert(data.message);
+		}
+	});
+}
+
+function delPoint(pointId,pointName){
+	var param = {
+		pointId:pointId
+	};
+	postAction('${root}/slice/delPoint.do',param, function(data){
+		loadPointList();
+	});
+}
+
+function loadPointList(){
+	if(window.loadPointLoop){
+		clearInterval(window.loadPointLoop);
+	}
+	postAction('${root}/slice/getPointListByVideoId.do',{id:'${attrs.originalVideoId}'},function(data){
+		var html = '';
+		$(".mejs-time-total .play_Point").remove();
+		var needLoad = false;
+		for(var i=0;i<data.length;i++){
+			var bean = data[i];
+			html += '<ul class="frame_ul1 frame_watch">';
+			html += '<label onclick="model.point_seek('+ bean.punchTime +')"><li>'+bean.pointName+'</li></label>';
+			html += '<li>'+morephoto.arrive_timer_format(bean.punchTime)+'</li>';
+			var actionHtml = '<span class="play_del" onclick="model.delList(event)" ms-id="'+bean.resVideoPointId+'" pointId="'+bean.resVideoPointId+'" pointName="'+bean.pointName+'"></span>';
+			html += '<li>'+actionHtml+'</li>';
+			html += '</ul>';
+			var left_val = Math.min(parseInt(bean.punchTime) / window.altotalTime,0.99)*100+ "%";
+			generatePoint(bean.resVideoPointId, left_val, morephoto.arrive_timer_format(bean.punchTime), bean.pointName, bean.useThumbFlag, "${root}/images/"+bean.thumb);
+			if(bean.useThumbFlag == 'Y' && bean.status == 'PROGRESS'){
+				needLoad = true;
+			}
+		}
+		$('.watch_point ul:gt(0)').remove();
+		$('.watch_point').append(html);
+		if(window.path_num  == 1){
+			$(".play_Point").show();
+		}else{
+			$(".play_Point").hide();
+		}
+		$(".play_Point").mouseover(function(){
+			$(this).find(".pointfont").show()
+		  });
+		$(".play_Point").mouseout(function(){
+			  $(this).find(".pointfont").hide()
+		});
+		if(needLoad){
+			window.loadPointLoop = setInterval('loadPointList()',2000);
+		}
+	});
+}
+
+
+function getParam(){
+	var map = {};
+	$('#hiddenDiv input').each(function(){
+		var name = $(this).attr('name');
+		map[name] = $(this).val();
+	});
+	return map;
+}
+
+function postAction(url,param,functionSuccess){
+	$.post(url,param,functionSuccess,'json');
+}
+
+function generatePoint(pointID, left_val, pointTime, pointName, useThumbFlag, imageSrc){
+	var pointHtml = '';
+	pointHtml += "<span class='point_left play_Point' id="+ pointID +" style=left:"+ left_val +">";
+	pointHtml +="<p class='pointfont'>";
+	pointHtml +="<b>"+ pointTime +" </b>";
+	pointHtml +="<label>"+ pointName +" </label>";
+	if(useThumbFlag=="Y"){
+		pointHtml +="<img src='"+imageSrc+"'/>";	
+	}
+	pointHtml +="</p></span>";
+	$(".mejs-time-total").append(pointHtml);
+	
+}
+
+function timeStrToInt(str){
+	var pp = str.split(":");
+    pp = parseInt(pp[0])*3600 + parseInt(pp[1])*60 + parseInt(pp[2]);
+	return pp;
+}
+
+function getByteLen(val) {
+	var len = 0;
+	for (var i = 0; i < val.length; i++) {
+		 var a = val.charAt(i);
+		if (a.match(/[^\x00-\xff]/ig) != null) {
+			len += 2;
+		} else {
+			len += 1;
+		}
+	}
+	return len;
+}
+loadSliceList();
+
+</script>
+</body>
+</html>
